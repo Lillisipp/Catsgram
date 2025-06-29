@@ -31,21 +31,11 @@ public class PostController {
             throw new ConditionsNotMetException("Описание не может быть пустым");
         }
         // формируем дополнительные данные
-        post.setId(getNextId());
+        post.setId(getNextIdPost());
         post.setPostDate(Instant.now());
         // сохраняем новую публикацию в памяти приложения
         posts.put(post.getId(), post);
         return post;
-    }
-
-    // вспомогательный метод для генерации идентификатора нового поста
-    private long getNextId() {
-        long currentMaxId = posts.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
     }
 
     @PutMapping
