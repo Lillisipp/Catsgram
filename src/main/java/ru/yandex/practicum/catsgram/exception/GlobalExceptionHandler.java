@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -47,6 +49,7 @@ public class GlobalExceptionHandler {
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 .build();
     }
+
     @ExceptionHandler(DuplicatedDataException.class)
     public ErrorResponse handleDuplicatedDataException(DuplicatedDataException ex) {
         return ErrorResponse

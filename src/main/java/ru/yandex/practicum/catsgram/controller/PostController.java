@@ -1,58 +1,32 @@
 package ru.yandex.practicum.catsgram.controller;
 
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
-import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.Post;
+import ru.yandex.practicum.catsgram.service.PostService;
 
-import java.time.Instant;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.springframework.util.StringUtils.*;
 
 @RestController
 @RequestMapping("/posts")
 public class PostController {
+    private final PostService postService;
 
-    private final Map<Long, Post> posts = new HashMap<>();
+    public PostController(PostService postService) {
+        this.postService = postService;
+    }
 
     @GetMapping
     public Collection<Post> findAll() {
-        return posts.values();
+        return postService.findAll();
     }
 
     @PostMapping
     public Post create(@RequestBody Post post) {
-        // проверяем выполнение необходимых условий
-        if (!hasText(post.getDescription())) {
-            throw new ConditionsNotMetException("Описание не может быть пустым");
-        }
-        // формируем дополнительные данные
-        post.setId(getNextIdPost());
-        post.setPostDate(Instant.now());
-        // сохраняем новую публикацию в памяти приложения
-        posts.put(post.getId(), post);
-        return post;
+        return postService.create(post);
     }
 
     @PutMapping
     public Post update(@RequestBody Post newPost) {
-        // проверяем необходимые условия
-        if (newPost.getId() == null) {
-            throw new ConditionsNotMetException("Id должен быть указан");
-        }
-        if (posts.containsKey(newPost.getId())) {
-            Post oldPost = posts.get(newPost.getId());
-            if (newPost.getDescription() == null || newPost.getDescription().isBlank()) {
-                throw new ConditionsNotMetException("Описание не может быть пустым");
-            }
-            // если публикация найдена и все условия соблюдены, обновляем её содержимое
-            oldPost.setDescription(newPost.getDescription());
-            return oldPost;
-        }
-        throw new NotFoundException("Пост с id = " + newPost.getId() + " не найден");
+        return postService.update(newPost);
     }
 }
