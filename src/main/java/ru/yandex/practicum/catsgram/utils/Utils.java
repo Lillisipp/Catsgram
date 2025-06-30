@@ -10,7 +10,7 @@ public class Utils {
 //                .orElse(0) + 1;
 //    }
 
-    public static Long getNextIdLong(Map<Long, ?> map) {
+    public static Long getNextId(Map<Long, ?> map) {
         return map.keySet().stream()
                 .mapToLong(id -> id)
                 .max()

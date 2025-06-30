@@ -1,5 +1,6 @@
 package ru.yandex.practicum.catsgram.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
@@ -12,9 +13,11 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     final Map<Long, User> users = new HashMap<>();
@@ -31,7 +34,7 @@ public class UserService {
         if (isEmailAlreadyUsed(user.getEmail())) {
             throw new DuplicatedDataException("Этот имейл уже используется");
         }
-        user.setId(Utils.getNextIdLong(users));
+        user.setId(Utils.getNextId(users));
         user.setRegistrationDate(Instant.now());
         users.put(user.getId(), user);// присваиваем ID
         log.info("Пользователь создан с ID: {}", user.getId());
@@ -44,7 +47,6 @@ public class UserService {
             throw new ConditionsNotMetException("Id должен быть указан.");
         }
         User existingUser = users.get(newUser.getId());
-
         if (!users.containsKey(newUser.getId())) {
             log.warn("Обновление отклонено: пользователь с ID {} не найден", newUser.getId());
             throw new NotFoundException("Пользователь с таким ID не найден.");
@@ -57,14 +59,18 @@ public class UserService {
         if (newUser.getEmail() != null) {
             existingUser.setEmail(newUser.getEmail());
         }
-        if (newUser.getUsername() != null) {
+        if (newUser.getUsername() != null && !newUser.getPassword().isBlank()) {
             existingUser.setUsername(newUser.getUsername());
         }
-        if (newUser.getPassword() != null) {
+        if (newUser.getPassword() != null && !newUser.getPassword().isBlank()) {
             existingUser.setPassword(newUser.getPassword());
         }
         log.info("Пользователь с ID {} успешно обновлён", newUser.getId());
         return existingUser;
+    }
+
+    public Optional<User> findUserById(Long id) {
+        return Optional.ofNullable(users.get(id));
     }
 
     private boolean isEmailAlreadyUsed(String email) {

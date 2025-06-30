@@ -1,20 +1,28 @@
 package ru.yandex.practicum.catsgram.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
 import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.Post;
+import ru.yandex.practicum.catsgram.model.User;
 
 import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-import static ru.yandex.practicum.catsgram.utils.Utils.getNextIdLong;
+import static ru.yandex.practicum.catsgram.utils.Utils.getNextId;
 
 @Service
 public class PostService {
     private final Map<Long, Post> posts = new HashMap<>();
+    private final UserService userService;
+
+    public PostService(UserService userService) {
+        this.userService = userService;
+    }
 
     public Collection<Post> findAll() {
         return posts.values();
@@ -24,8 +32,11 @@ public class PostService {
         if (post.getDescription() == null || post.getDescription().isBlank()) {
             throw new ConditionsNotMetException("Описание не может быть пустым");
         }
-
-        post.setId(getNextIdLong(posts));
+        Long authorId = post.getAuthorId();
+        if (authorId == null || userService.findUserById(authorId).isEmpty()) {
+            throw new ConditionsNotMetException("Автор с id = " + authorId + " не найден");
+        }
+        post.setId(getNextId(posts));
         post.setPostDate(Instant.now());
         posts.put(post.getId(), post);
         return post;
@@ -44,5 +55,9 @@ public class PostService {
             return oldPost;
         }
         throw new NotFoundException("Пост с id = " + newPost.getId() + " не найден");
+    }
+
+    public Optional<Post> findPostById(Long id) {
+        return Optional.ofNullable(posts.get(id));
     }
 }
