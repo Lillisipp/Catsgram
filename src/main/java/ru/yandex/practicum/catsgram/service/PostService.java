@@ -5,13 +5,13 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
 import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.Post;
+import ru.yandex.practicum.catsgram.model.enums.SortOrder;
 import ru.yandex.practicum.catsgram.model.User;
+import ru.yandex.practicum.catsgram.model.enums.SortOrder;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.catsgram.utils.Utils.getNextId;
 
@@ -24,8 +24,17 @@ public class PostService {
         this.userService = userService;
     }
 
-    public Collection<Post> findAll() {
-        return posts.values();
+    public Collection<Post> findAll(int from,int size, SortOrder sortOrder ) {
+        Comparator<Post> comparator=Comparator.comparing(Post::getPostDate);
+        if (sortOrder == SortOrder.DESCENDING) {
+            comparator = comparator.reversed();
+        }
+
+        return posts.values().stream()
+                .sorted(comparator)
+                .skip(from)         // Пропускаем указанные элементы
+                .limit(size)        // Ограничиваем количество
+                .collect(Collectors.toList());
     }
 
     public Post create(Post post) {

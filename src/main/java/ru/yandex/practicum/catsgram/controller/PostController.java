@@ -3,6 +3,7 @@ package ru.yandex.practicum.catsgram.controller;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.Post;
+import ru.yandex.practicum.catsgram.model.enums.SortOrder;
 import ru.yandex.practicum.catsgram.service.PostService;
 
 import java.util.Collection;
@@ -16,8 +17,18 @@ public class PostController {
         this.postService = postService;
     }
 
+    // GET localhost/posts?sortOrder=desc
+
     @GetMapping
-    public Collection<Post> findAll() {
+    public Collection<Post> findAll(
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "desc") SortOrder sort
+    ) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("Размер выборки должен быть больше 0");
+        }
+        SortOrder
         return postService.findAll();
     }
 
