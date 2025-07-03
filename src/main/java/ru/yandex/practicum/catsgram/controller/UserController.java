@@ -1,6 +1,7 @@
 package ru.yandex.practicum.catsgram.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.User;
@@ -29,6 +30,7 @@ public class UserController {
                 .orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
         return userService.createUser(user);
