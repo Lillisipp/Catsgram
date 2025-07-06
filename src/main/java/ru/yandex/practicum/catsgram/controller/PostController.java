@@ -3,6 +3,7 @@ package ru.yandex.practicum.catsgram.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.catsgram.exception.NotFoundException;
+import ru.yandex.practicum.catsgram.exception.ParameterNotValidException;
 import ru.yandex.practicum.catsgram.model.Post;
 import ru.yandex.practicum.catsgram.model.enums.SortOrder;
 import ru.yandex.practicum.catsgram.service.PostService;
@@ -24,14 +25,18 @@ public class PostController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "desc") String sort
     ) {
+        if (from < 0) {
+            throw new ParameterNotValidException(
+                    "from", "Начальное значение должно быть больше или равно 0.");
+        }
         if (size <= 0) {
-            throw new IllegalArgumentException("Размер выборки должен быть больше 0");
+            throw new ParameterNotValidException("size","Размер выборки должен быть больше 0");
         }
         SortOrder sortOrder = SortOrder.from(sort);
         if (sortOrder == null) {
-            throw new IllegalArgumentException("Неверное значение параметра sort: " + sort);
+            throw new ParameterNotValidException("sort","Неверное значение параметра sort: " + sort);
         }
-        return postService.findAll(from,size,sortOrder);
+        return postService.findAll(from, size, sortOrder);
     }
 
     @GetMapping("/{id}")
